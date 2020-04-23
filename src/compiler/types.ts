@@ -5994,6 +5994,13 @@ namespace ts {
         set?: Expression;
     }
 
+    /* @internal */
+    export const enum LexicalEnvironmentFlags {
+        None = 0,
+        InParameters = 1 << 0, // currently visiting a parameter list
+        VariablesHoistedInParameters = 1 << 1 // a temp variable was hoisted while visiting a parameter list
+    }
+
     export interface TransformationContext {
         /*@internal*/ getEmitResolver(): EmitResolver;
         /*@internal*/ getEmitHost(): EmitHost;
@@ -6003,6 +6010,9 @@ namespace ts {
 
         /** Starts a new lexical environment. */
         startLexicalEnvironment(): void;
+
+        /* @internal */ setLexicalEnvironmentFlags(flags: LexicalEnvironmentFlags, value: boolean): void;
+        /* @internal */ getLexicalEnvironmentFlags(): LexicalEnvironmentFlags;
 
         /** Suspends the current lexical environment, usually after visiting a parameter list. */
         suspendLexicalEnvironment(): void;
@@ -6018,6 +6028,10 @@ namespace ts {
 
         /** Hoists a variable declaration to the containing scope. */
         hoistVariableDeclaration(node: Identifier): void;
+
+        /** Adds an initialization statement to the top of the lexical environment. */
+        /* @internal */
+        addInitializationStatement(node: Statement): void;
 
         /** Records a request for a non-scoped emit helper in the current context. */
         requestEmitHelper(helper: EmitHelper): void;
